@@ -16,6 +16,10 @@
     <p><em>Categories: </em><%= @post.meta['categories'].join(', ') %></p>
   </div><!-- /categories -->
   <% end %>
+
+  <div class="perex">
+    <%= @post.perex %>
+  </div>
   
   <div class="body">
     <%= @post.body_html %>
