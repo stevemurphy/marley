@@ -59,7 +59,7 @@ module Marley
       return if directory.empty?
       directory = directory.first
       return unless directory or !File.exist?(directory)
-      file = Dir["#{directory}/*.txt"].first
+      file = Dir["#{directory}/*.markdown"].first
       self.new( self.extract_post_info_from(file, options).merge( :comments => Marley::Comment.find_all_by_post_id(id, :conditions => { :spam => false }) ) )
     end
     
@@ -72,9 +72,9 @@ module Marley
       end
     end
     
-    # Loads all directories in data directory and returns first <tt>.txt</tt> file in each one
+    # Loads all directories in data directory and returns first <tt>.markdown</tt> file in each one
     def self.extract_posts_from_directory(options={})
-      self.load_directories_with_posts(options).collect { |dir| Dir["#{dir}/*.txt"].first }.compact
+      self.load_directories_with_posts(options).collect { |dir| Dir["#{dir}/*.markdown"].first }.compact
     end
     
     # Extracts post information from the directory name, file contents, modification time, etc
