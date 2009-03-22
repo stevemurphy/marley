@@ -1,3 +1,0 @@
-[submodule "vendor/sinatra-sinatra"]
-	path = vendor/sinatra-sinatra
-	url = git://github.com/sinatra/sinatra.git

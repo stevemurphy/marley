@@ -1,3 +1,6 @@
+# Some changes for dreamhost based on http://blog.robseaman.com/2008/12/1/deploying-mephisto-with-capistrano-to-dreamhost
+# and also on http://railstips.org/2008/12/14/deploying-rails-on-dreamhost-with-passenger
+
 # Load Marley configuration
 CONFIG = YAML.load_file( File.join(File.dirname(__FILE__), 'config.yml') ) unless defined? CONFIG
 
@@ -10,20 +13,29 @@ set :user, "{REPLACE WITH YOUR SSH USERNAME}"
 
 
 # ----- Setup Git -------------------------------------------------------------
-set :runner, "deployer"
-set :application, 'marley'
+default_run_options[:pty] = true #suggested by github to get passphrase prompt
+set :runner, "{REPLACE WITH YOUR DH USERNAME}" #who to sudo as for deploy:restart
+set :application, "marley"
+set :app_path, "{REPLACE WITH YOUR PATH TO YOUR DOMAIN ROOT ON DH}"
 set :scm, :git
-# set :branch, "deploy"
-set :git_enable_submodules, 1
+set :branch, "master" #typical
+#set :git_enable_submodules, 1
 set :repository,  "{REPLACE WITH YOUR PATH TO YOUR REPOSITORY}"
-set :deploy_via, :remote_cache
-set :deploy_to, "{REPLACE WITH YOUR PATH}/#{application}"
+#set :repository,  "git@github.com:user/marley.git" #github example
+set :deploy_via, :remote_cache # "copy" if using local
+set :git_shallow_clone, 1 #get the first tree, not all the parents trees - make sure will encompass branch
+#set :copy_exclude, [".git", ".gitignore"] #speeds up copy deploy
+set :deploy_to, "/home/#{user}/#{app_path}/#{application}"
+set :domain, "{REPLACE WITH DOMAIN OF YOUR BLOG}"
 set :use_sudo, false
 
+# This is from http://railstips.org/2008/12/14/deploying-rails-on-dreamhost-with-passenger
+# Used because in this instance "domain" is different from "application" etc.
+
 # ----- Setup servers ---------------------------------------------------------
-role :app, "{REPLACE WITH YOUR SERVER}"
-role :web, "{REPLACE WITH YOUR SERVER}"
-role :db,  "{REPLACE WITH YOUR SERVER}", :primary => true
+
+server domain, :app, :web
+role :db, domain, :primary => true
 
 
 # ***** No need to change anything below **************************************
@@ -133,36 +145,32 @@ namespace :deploy do
     transaction do 
       stop
       update
-      start
+      restart #changed from start for passenger
     end
   end
   
   desc "Deploy new application on server"
   task :cold do
     update
-    start
+    restart #changed from start for passenger
   end
   
-  desc "Return to previous version"
-  task :rollback do
-    stop
-    rollback_code
-    start
+#  desc "Return to previous version"
+#  task :rollback do
+#    stop
+#    rollback_code
+#    start
+#  end
+
+  # Changed restart etc for dreamhost/passenger
+  desc "Restart passenger."
+  task :restart do
+    run "touch #{current_path}/tmp/restart.txt"
   end
 
-  desc "Restart the webserver"  
-  task :restart, :roles => :app do
-     run "cd #{current_path}; rake server:restart"
-  end
-  
-  desc "Start the webserver"  
-  task :start, :roles => :app do
-     run "cd #{current_path}; rake server:start"
-  end
-  
-  desc "Stop the webserver"  
-  task :stop, :roles => :app do
-     run "cd #{current_path}; rake server:stop"
+  [:start, :stop].each do |t|
+    desc "#{t} task is a no-op with mod_rails"
+    task t, :roles => :app do ; end
   end
 
 end

@@ -1,0 +1,2 @@
+SetEnv GEM_HOME /home/murphs/.gem
+SetEnv GEM_PATH /home/murphs/.gem/ruby/1.8:/usr/lib/ruby/gems/1.8
