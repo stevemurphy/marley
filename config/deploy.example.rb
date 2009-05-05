@@ -24,7 +24,7 @@ set :repository,  "{REPLACE WITH YOUR PATH TO YOUR REPOSITORY}"
 #set :repository,  "git@github.com:user/marley.git" #github example
 set :deploy_via, :remote_cache # "copy" if using local
 set :git_shallow_clone, 1 #get the first tree, not all the parents trees - make sure will encompass branch
-#set :copy_exclude, [".git", ".gitignore"] #speeds up copy deploy
+#set :copy_exclude, [".git", ".gitignore", ".gitmodules"] #speeds up copy deploy; not really needed
 set :deploy_to, "/home/#{user}/#{app_path}/#{application}"
 set :domain, "{REPLACE WITH DOMAIN OF YOUR BLOG}"
 set :use_sudo, false
