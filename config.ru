@@ -18,4 +18,3 @@ $stderr.reopen(log)
 
 require File.join(root_dir, 'app', 'marley.rb')
 run Sinatra::Application
-

@@ -12,11 +12,15 @@ require 'rdiscount'
 require 'akismetor'
 require 'githubber'
 
+def load_or_require(file)
+  (Sinatra::Application.environment == :development) ? load(file) : require(file)
+end
+
 %w{
 configuration
 post
 comment
-}.each { |f| require File.join(File.dirname(__FILE__), 'lib', f) }
+}.each { |f| load_or_require File.join(File.dirname(__FILE__), 'lib', "#{f}.rb") }
 
 # -----------------------------------------------------------------------------
 
@@ -98,7 +102,11 @@ end
 # -----------------------------------------------------------------------------
 
 get '/' do
-  @posts = Marley::Post.published
+  if Sinatra::Application.environment == :development
+    @posts = Marley::Post.all
+  else
+    @posts = Marley::Post.published
+  end
   @page_title = "#{Marley::Configuration.blog.title}"
   erb :index
 end
